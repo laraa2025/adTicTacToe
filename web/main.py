@@ -38,6 +38,7 @@ INFO_MITTE = INFO_X + INFO_BREITE // 2
 SZENE_NAMEN = "namen"
 SZENE_SPIEL = "spiel"
 SZENE_ERGEBNIS = "ergebnis"
+SZENE_ENDE = "ende"
 
 MAX_NAME = 14
 
@@ -228,10 +229,12 @@ def hole_buttons():
             ("reset", "Spielstand zurücksetzen", pygame.Rect(INFO_X, 445, INFO_BREITE, 52)),
             ("beenden", "Spiel beenden", pygame.Rect(INFO_X, 510, INFO_BREITE, 52)),
         ]
-    return [
-        ("neues_spiel", "Neues Spiel", pygame.Rect(230, 420, 160, 60)),
-        ("ende", "Beenden", pygame.Rect(410, 420, 160, 60)),
-    ]
+    if szene == SZENE_ERGEBNIS:
+        return [
+            ("neues_spiel", "Neues Spiel", pygame.Rect(230, 420, 160, 60)),
+            ("ende", "Beenden", pygame.Rect(410, 420, 160, 60)),
+        ]
+    return [("neu_starten", "Neu starten", pygame.Rect(300, 420, 200, 60))]
 
 
 def hole_eingabefelder():
@@ -328,17 +331,41 @@ def zeichne_ergebnis(flaeche):
         zeichne_button(flaeche, rect, beschriftung)
 
 
+def zeichne_ende(flaeche):
+    schreibe(flaeche, "Tic Tac Toe", 400, 140, 56)
+    schreibe(flaeche, "Danke fürs Spielen!", 400, 230, 40, WEISS, True, 700)
+    schreibe(flaeche, f"Endstand   X: {punkte_x}    O: {punkte_o}", 400, 310, 30, GRAU, True, 700)
+
+    for kid, beschriftung, rect in hole_buttons():
+        zeichne_button(flaeche, rect, beschriftung)
+
+
 def zeichne(flaeche):
     flaeche.fill(SCHWARZ)
     if szene == SZENE_NAMEN:
         zeichne_namen(flaeche)
     elif szene == SZENE_SPIEL:
         zeichne_spiel(flaeche)
-    else:
+    elif szene == SZENE_ERGEBNIS:
         zeichne_ergebnis(flaeche)
+    else:
+        zeichne_ende(flaeche)
 
 
 # -------------------------------------------------------------------- Klicks --
+def zurueck_zur_namenseingabe():
+    global szene, punkte_x, punkte_o, txt_x, txt_o, aktives_feld
+    punkte_x = 0
+    punkte_o = 0
+    txt_x = ""
+    txt_o = ""
+    aktives_feld = "x"
+    neue_runde()
+    szene = SZENE_NAMEN
+    # Tastatur-Eingabe erneut aktivieren (wichtig nach Szenenwechsel im Browser)
+    pygame.key.start_text_input()
+
+
 def button_klick(kid):
     global szene, punkte_x, punkte_o, txt_x, txt_o, aktives_feld
     if kid == "start":
@@ -350,15 +377,11 @@ def button_klick(kid):
     elif kid == "beenden":
         szene = SZENE_ERGEBNIS
     elif kid == "neues_spiel":
-        punkte_x = 0
-        punkte_o = 0
-        txt_x = ""
-        txt_o = ""
-        aktives_feld = "x"
-        neue_runde()
-        szene = SZENE_NAMEN
+        zurueck_zur_namenseingabe()
     elif kid == "ende":
-        return False
+        szene = SZENE_ENDE
+    elif kid == "neu_starten":
+        zurueck_zur_namenseingabe()
     return True
 
 
