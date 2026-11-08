@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+
+# pygbag-Build-Ausgabe (wird in der GitHub Action neu erzeugt)
+web/build/
+build/
+dist/
+
+# Nicht veroeffentlichen
+*.pdf
